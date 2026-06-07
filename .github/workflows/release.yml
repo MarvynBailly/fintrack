@@ -42,8 +42,8 @@ jobs:
         run: |
           chmod +x ./gradlew
           ./gradlew assembleRelease \
-            -PversionName=${{ steps.ver.outputs.name }} \
-            -PversionCode=${{ github.run_number }}
+            -PverName=${{ steps.ver.outputs.name }} \
+            -PverCode=${{ github.run_number }}
 
       - name: Rename APK
         run: |

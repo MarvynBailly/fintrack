@@ -16,6 +16,10 @@ if (keystorePropsFile.exists()) {
 def releaseStoreFile = System.getenv('KEYSTORE_FILE') ?: keystoreProps.getProperty('storeFile')
 def hasReleaseSigning = releaseStoreFile != null
 
+// Version is overridable from CI: -PverCode=<n> -PverName=<x.y>
+def appVersionCode = (project.findProperty('verCode') ?: '1').toString().toInteger()
+def appVersionName = (project.findProperty('verName') ?: '1.0').toString()
+
 android {
     namespace 'com.marvyn.fintrack'
     compileSdk 34
@@ -24,9 +28,8 @@ android {
         applicationId 'com.marvyn.fintrack'
         minSdk 26
         targetSdk 34
-        // Overridable from CI: -PversionCode=<n> -PversionName=<x.y>
-        versionCode (project.findProperty('versionCode') ?: '1').toString().toInteger()
-        versionName (project.findProperty('versionName') ?: '1.0').toString()
+        versionCode appVersionCode
+        versionName appVersionName
         vectorDrawables {
             useSupportLibrary true
         }
