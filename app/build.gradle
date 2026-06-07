@@ -4,6 +4,18 @@ plugins {
     id 'com.google.devtools.ksp'
 }
 
+// Release signing. CI passes the keystore + credentials through environment
+// variables; for local release builds, drop a keystore.properties next to this
+// file (it is git-ignored). When neither is present, release builds are simply
+// left unsigned so debug development keeps working with no setup.
+def keystorePropsFile = rootProject.file('keystore.properties')
+def keystoreProps = new Properties()
+if (keystorePropsFile.exists()) {
+    keystoreProps.load(new FileInputStream(keystorePropsFile))
+}
+def releaseStoreFile = System.getenv('KEYSTORE_FILE') ?: keystoreProps.getProperty('storeFile')
+def hasReleaseSigning = releaseStoreFile != null
+
 android {
     namespace 'com.marvyn.fintrack'
     compileSdk 34
@@ -12,10 +24,22 @@ android {
         applicationId 'com.marvyn.fintrack'
         minSdk 26
         targetSdk 34
-        versionCode 1
-        versionName '1.0'
+        // Overridable from CI: -PversionCode=<n> -PversionName=<x.y>
+        versionCode (project.findProperty('versionCode') ?: '1').toString().toInteger()
+        versionName (project.findProperty('versionName') ?: '1.0').toString()
         vectorDrawables {
             useSupportLibrary true
+        }
+    }
+
+    signingConfigs {
+        release {
+            if (hasReleaseSigning) {
+                storeFile file(releaseStoreFile)
+                storePassword System.getenv('KEYSTORE_PASSWORD') ?: keystoreProps.getProperty('storePassword')
+                keyAlias System.getenv('KEY_ALIAS') ?: keystoreProps.getProperty('keyAlias')
+                keyPassword System.getenv('KEY_PASSWORD') ?: keystoreProps.getProperty('keyPassword')
+            }
         }
     }
 
@@ -23,6 +47,9 @@ android {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            if (hasReleaseSigning) {
+                signingConfig signingConfigs.release
+            }
         }
     }
 

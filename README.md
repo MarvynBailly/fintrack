@@ -44,6 +44,17 @@ you explicitly enable.
 - `NotificationListenerService` for capture
 - minSdk 26, targetSdk 34
 
+## Install via Obtainium
+
+FinTrack publishes a signed APK to GitHub Releases on every version tag, so you
+can install and auto-update it with [Obtainium](https://github.com/ImranR98/Obtainium):
+
+1. In Obtainium, tap **Add App**.
+2. Source URL: `https://github.com/MarvynBailly/fintrack`
+3. Install, then grant notification access when prompted.
+
+Obtainium will offer an update whenever a new release is tagged.
+
 ## Building
 
 Open the project in Android Studio and run the `app` module on a device or
@@ -54,6 +65,28 @@ Unit tests for the notification parser:
 
 ```
 ./gradlew testDebugUnitTest
+```
+
+### Cutting a release
+
+Releases are built and signed automatically by
+[`.github/workflows/release.yml`](.github/workflows/release.yml). Push a version
+tag and the workflow publishes a signed `fintrack-<version>.apk`:
+
+```
+git tag v1.0
+git push origin v1.0
+```
+
+Signing credentials are stored as repository secrets (`KEYSTORE_BASE64`,
+`KEYSTORE_PASSWORD`, `KEY_ALIAS`, `KEY_PASSWORD`). To build a signed release
+locally instead, create a git-ignored `keystore.properties` in the project root:
+
+```
+storeFile=keystore/release.jks
+storePassword=…
+keyAlias=fintrack
+keyPassword=…
 ```
 
 ## License
